@@ -6,6 +6,7 @@
 
 extern Scheduler ts;
 
+int adc_reading;
 double pressure;
 double setPoint, outputVal;
 char buf[100];
@@ -39,6 +40,23 @@ char* get_pressure()
     return buf;
 }
 
+int get_raw_adc()
+{
+    return adc_reading;
+}
+
+void read_sensor()
+{
+    adc_reading = analogRead(VACUUM_SENSOR);
+    if (adc_reading != 0)
+    {
+      double adc_voltage = adc_reading * (5.0 / 1023.0);
+      pressure = adc_voltage / 5.0;
+      pressure = pressure + 0.095;
+      pressure = pressure / 0.009;
+    }
+}
+
 void PID_cb();
 
 //input/output variables passed by reference, so they are updated automatically
@@ -59,15 +77,6 @@ void PID_config()
 
 void PID_cb()
 {
-    int adc_reading = analogRead(VACUUM_SENSOR);
-    if (adc_reading != 0)
-    {
-      double adc_voltage = adc_reading * (5.0 / 1023.0);
-      pressure = adc_voltage / 5.0;
-      pressure = pressure + 0.095;
-      pressure = pressure / 0.009;
-    }
-
     analogWrite(RELAY_OUTPUT, outputVal);
 }
 

@@ -16,18 +16,12 @@ void setup()
   pinMode(VACUUM_SENSOR, INPUT);
   pinMode(RELAY_OUTPUT, OUTPUT);
   PID_config();
-  Serial.println("Reading setpoint from EEPROM...");
   double teste = 90.0;
   r = OSFS::newFile("setpoint", teste);
   if (r == OSFS::result::UNFORMATTED)
   {
     Serial.println("EEPROM not formatted, formatting...");
     OSFS::format();
-  }
-
-  else if (r == OSFS::result::FILE_ALREADY_EXISTS)
-  {
-    Serial.println("Found previous setpoint in EEPROM, will use it");
   }
 }
 
@@ -42,4 +36,10 @@ void blink_CB()
   digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
 }
 
+void readSensor_CB()
+{
+  read_sensor();
+}
+
 Task tBlink ( 1000 * TASK_MILLISECOND, TASK_FOREVER, &blink_CB, &ts, true );
+Task tReadSensor ( 10 * TASK_MILLISECOND, TASK_FOREVER, &readSensor_CB, &ts, true );
